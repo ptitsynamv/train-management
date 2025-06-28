@@ -1,7 +1,6 @@
 # Train Management
 
-Angular 19, Tailwind CSS 4
-Node v22.15.1, npm v10.9.2
+Angular 19, Tailwind CSS 4, Node v22.15.1, npm v10.9.2
 
 ## Development server
 

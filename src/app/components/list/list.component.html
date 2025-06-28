@@ -1,18 +1,116 @@
-<table class="table-auto">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Unique Number</th>
-      <th>Can Assign Quantity</th>
-      <th>Quantity</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let train of trains; trackBy: identify">
-      <td>{{ train.name }}</td>
-      <td>{{ train.uniqueNumber }}</td>
-      <td>{{ train.canAssignQuantity }}</td>
-      <td>{{ train.quantity }}</td>
-    </tr>
-  </tbody>
-</table>
+<div class="flex flex-col">
+  <div class="-m-1.5 overflow-x-auto">
+    <div class="p-1.5 min-w-full inline-block align-middle">
+      <div class="border border-gray-200 rounded-lg divide-y divide-gray-200">
+        <div class="overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                >
+                  Name
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                >
+                  Unique Number
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                >
+                  Can Assign Quantity
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                >
+                  Quantity
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase"
+                >
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr *ngFor="let train of trainInfo?.data; trackBy: identify">
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                >
+                  {{ train.name }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ train.uniqueNumber }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ train.canAssignQuantity | booleanToText : "Yes" : "No" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  <ng-container
+                    *ngIf="train.canAssignQuantity; else emptyState"
+                  >
+                    {{ train.quantity }}
+                  </ng-container>
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium"
+                >
+                  <ng-container
+                    *ngIf="train.canAssignQuantity; else emptyState"
+                  >
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 focus:outline-hidden focus:text-blue-800 disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                      Edit Quantity
+                    </button>
+                  </ng-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="py-1 px-4">
+          <nav
+            class="flex justify-end items-center gap-x-1"
+            aria-label="Pagination"
+          >
+            <button
+              type="button"
+              class="p-2.5 min-w-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
+              aria-label="Previous"
+              (click)="prevPage()"
+              [disabled]="page === 1"
+            >
+              <span aria-hidden="true">«</span>
+              <span class="sr-only">Previous</span>
+            </button>
+
+            <div class="text-sm text-gray-700">
+              Page {{ page }} of {{ totalPages() }}
+            </div>
+
+            <button
+              type="button"
+              class="p-2.5 min-w-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
+              aria-label="Next"
+              (click)="nextPage()"
+              [disabled]="isLastPage()"
+            >
+              <span class="sr-only">Next</span>
+              <span aria-hidden="true">»</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #emptyState>-</ng-template>

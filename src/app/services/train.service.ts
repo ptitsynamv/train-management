@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Train } from '../models/train.model';
 import { delay, Observable, of } from 'rxjs';
+import { TrainInfo } from '../models/shared.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TrainService {
-  private readonly storageKey = 'local_train_data';
-  private readonly initialTrains: Train[] = [
+  private readonly STORAGE_KEY = 'local_train_data';
+  private readonly INITIAL_TRAINS: Train[] = [
     {
       id: 1,
       name: 'Engine',
@@ -221,23 +222,38 @@ export class TrainService {
   ];
 
   constructor() {
-    const existing = localStorage.getItem(this.storageKey);
+    const existing = localStorage.getItem(this.STORAGE_KEY);
     if (!existing) {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.initialTrains));
+      localStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(this.INITIAL_TRAINS)
+      );
     }
   }
 
   private getAllTrais(): Train[] {
-    return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+    return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
   }
 
   private save(Trains: Train[]) {
-    localStorage.setItem(this.storageKey, JSON.stringify(Trains));
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(Trains));
   }
 
-  public getTrains(): Observable<Train[]> {
+  public getTrains(
+    page: number = 1,
+    pageSize: number = 10
+  ): Observable<TrainInfo> {
     const trains = this.getAllTrais();
-    return of(trains).pipe(delay(500));
+    const start = (page - 1) * pageSize;
+    const paginatedData = trains.slice(start, start + pageSize);
+    const hasNext = start + pageSize < trains.length;
+    return of({
+      data: paginatedData,
+      total: trains.length,
+      pageSize,
+      page,
+      hasNext,
+    }).pipe(delay(500));
   }
 
   public getTrain(id: number): Observable<Train | undefined> {
