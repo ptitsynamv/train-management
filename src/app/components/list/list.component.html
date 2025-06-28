@@ -1,0 +1,18 @@
+<table class="table-auto">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Unique Number</th>
+      <th>Can Assign Quantity</th>
+      <th>Quantity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let train of trains; trackBy: identify">
+      <td>{{ train.name }}</td>
+      <td>{{ train.uniqueNumber }}</td>
+      <td>{{ train.canAssignQuantity }}</td>
+      <td>{{ train.quantity }}</td>
+    </tr>
+  </tbody>
+</table>
