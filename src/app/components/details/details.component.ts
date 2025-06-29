@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TrainService } from '../../services/train.service';
 import { NgIf } from '@angular/common';
 import { Train } from '../../models/train.model';
+import Toastify from 'toastify-js';
 
 @Component({
   selector: 'app-details',
@@ -27,6 +28,19 @@ export class DetailsComponent implements OnInit {
   ngOnInit(): void {
     this._route.params.subscribe((params) => {
       const { id } = params;
+
+      Toastify({
+        text: 'This is a toast',
+        duration: 30000000,
+        className: 'text-sm',
+        style: {
+          'border-radius': 'var(--radius-xl)',
+          color: 'var(--color-gray-700)',
+          background: 'var(--color-white)',
+        },
+        close: true,
+      }).showToast();
+
       if (!id) {
         console.error('No ID provided in route parameters');
         return;
