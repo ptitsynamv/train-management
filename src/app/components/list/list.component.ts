@@ -4,10 +4,11 @@ import { TrainService } from '../../services/train.service';
 import { NgFor, NgIf } from '@angular/common';
 import { TrainInfo } from '../../models/shared.model';
 import { BooleanToTextPipe } from '../../shared/pipes/boolean-to-text.pipe';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-list',
-  imports: [NgFor, NgIf, BooleanToTextPipe],
+  imports: [NgFor, NgIf, BooleanToTextPipe, RouterLink],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
 })

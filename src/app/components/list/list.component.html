@@ -64,12 +64,12 @@
                   <ng-container
                     *ngIf="train.canAssignQuantity; else emptyState"
                   >
-                    <button
-                      type="button"
+                    <a
+                      routerLink="/train/{{ train.id }}"
                       class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 focus:outline-hidden focus:text-blue-800 disabled:opacity-50 disabled:pointer-events-none"
                     >
                       Edit Quantity
-                    </button>
+                    </a>
                   </ng-container>
                 </td>
               </tr>
