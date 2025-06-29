@@ -2,20 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TrainService } from '../../services/train.service';
+import { NgIf } from '@angular/common';
+import { Train } from '../../models/train.model';
 
 @Component({
   selector: 'app-details',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, NgIf],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
 })
 export class DetailsComponent implements OnInit {
   public quantity = new FormControl(0, [
     Validators.required,
-    Validators.min(0),
-    Validators.max(10000),
+    Validators.max(Number.MAX_SAFE_INTEGER),
     Validators.pattern('^(0|[1-9][0-9]*)$'),
   ]);
+  public train: Train | null = null;
 
   constructor(
     private _route: ActivatedRoute,
@@ -35,12 +37,37 @@ export class DetailsComponent implements OnInit {
           console.error(`Train with ID ${id} not found`);
           return;
         }
+        this.train = train;
         this.quantity.setValue(train.quantity);
+
+        this.quantity.valueChanges.subscribe((value) => {
+          console.log(this.quantity.errors);
+        });
       });
     });
   }
 
   public updateQuantity() {
-    console.log('Updated quantity:', this.quantity.value);
+    if (this.train && this.train.canAssignQuantity === false) {
+      console.warn('This train cannot have its quantity updated.');
+      return;
+    }
+
+    if (this.train && this.quantity.invalid) {
+      console.warn('Invalid quantity value:', this.quantity.errors);
+      return;
+    }
+
+    if (this.train && this.quantity.value !== null) {
+      console.log('Updated quantity:', this.quantity.value);
+      this._trainService
+        .updateTrain({ ...this.train, quantity: this.quantity.value })
+        .subscribe((updatedTrain) => {
+          this.train = updatedTrain;
+          this.quantity.setValue(updatedTrain.quantity);
+        });
+    } else {
+      console.warn('Train is not defined or quantity is null');
+    }
   }
 }
