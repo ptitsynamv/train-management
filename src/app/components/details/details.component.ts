@@ -40,13 +40,14 @@ export class DetailsComponent implements OnInit {
           'No ID provided in route parameters',
           ToastType.Error
         );
+        this._router.navigate(['/']);
         return;
       }
 
       this._trainService.getTrain(+id).subscribe((train) => {
         if (!train) {
           this._notificationService.show(
-            `Train with ID ${id} not found`,
+            `Train with ID "${id}" not found`,
             ToastType.Error
           );
           this._router.navigate(['/']);
@@ -59,7 +60,12 @@ export class DetailsComponent implements OnInit {
   }
 
   public updateQuantity(): void {
-    if (this.train && this.train.canAssignQuantity === false) {
+    if (!this.train) {
+      this._notificationService.show('Train is not defined', ToastType.Warning);
+      return;
+    }
+
+    if (this.train.canAssignQuantity === false) {
       this._notificationService.show(
         'This train cannot have its quantity updated.',
         ToastType.Warning
@@ -67,7 +73,7 @@ export class DetailsComponent implements OnInit {
       return;
     }
 
-    if (this.train && this.quantity.invalid) {
+    if (this.quantity.invalid) {
       this._notificationService.show(
         `Invalid quantity value:, ${
           this.quantity.errors
@@ -79,22 +85,20 @@ export class DetailsComponent implements OnInit {
       return;
     }
 
-    if (this.train && this.quantity.value !== null) {
-      this._trainService
-        .updateTrain({ ...this.train, quantity: this.quantity.value })
-        .subscribe((updatedTrain) => {
-          this.train = updatedTrain;
-          this.quantity.setValue(updatedTrain.quantity);
-          this._notificationService.show(
-            `Train quantity updated to ${updatedTrain.quantity}`,
-            ToastType.Success
-          );
-        });
-    } else {
-      this._notificationService.show(
-        'Train is not defined or quantity is null',
-        ToastType.Warning
-      );
+    if (this.quantity.value === null) {
+      this._notificationService.show('Quantity is null', ToastType.Warning);
+      return;
     }
+
+    this._trainService
+      .updateTrain({ ...this.train, quantity: this.quantity.value })
+      .subscribe((updatedTrain) => {
+        this.train = updatedTrain;
+        this.quantity.setValue(updatedTrain.quantity);
+        this._notificationService.show(
+          `Train quantity updated to ${updatedTrain.quantity}`,
+          ToastType.Success
+        );
+      });
   }
 }

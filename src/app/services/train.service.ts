@@ -249,10 +249,12 @@ export class TrainService {
     const hasNext = start + pageSize < trains.length;
     return of({
       data: paginatedData,
-      total: trains.length,
-      pageSize,
-      page,
-      hasNext,
+      metadata: {
+        total: trains.length,
+        pageSize,
+        page,
+        hasNext,
+      },
     }).pipe(
       delay(500),
       catchError((err) => {

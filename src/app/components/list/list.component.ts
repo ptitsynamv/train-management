@@ -13,15 +13,21 @@ import { RouterLink } from '@angular/router';
   styleUrl: './list.component.scss',
 })
 export class ListComponent implements OnInit {
-  public trainInfo: TrainInfo | undefined;
-  public page = 1;
-  public readonly PAGE_SIZE = 10;
-  private total = 0;
+  private readonly _PAGE_SIZE = 10;
+  public trainInfo: TrainInfo = {
+    data: [],
+    metadata: {
+      total: 0,
+      pageSize: this._PAGE_SIZE,
+      page: 1,
+      hasNext: false,
+    },
+  };
 
-  constructor(private trainService: TrainService) {}
+  constructor(private _trainService: TrainService) {}
 
-  ngOnInit() {
-    this._loadTrains();
+  ngOnInit(): void {
+    this._loadTrains(this.trainInfo.metadata.page);
   }
 
   public identify(index: number, item: Train): number {
@@ -29,33 +35,26 @@ export class ListComponent implements OnInit {
   }
 
   public totalPages(): number {
-    return Math.ceil(this.total / this.PAGE_SIZE) || 1;
+    return Math.ceil(this.trainInfo.metadata.total / this._PAGE_SIZE) || 1;
   }
 
-  public nextPage() {
-    if (this.trainInfo && this.trainInfo.hasNext) {
-      this.page++;
-      this._loadTrains();
+  public nextPage(): void {
+    if (this.trainInfo && this.trainInfo.metadata.hasNext) {
+      this._loadTrains(this.trainInfo.metadata.page + 1);
     }
   }
 
-  public prevPage() {
-    if (this.page > 1) {
-      this.page--;
-      this._loadTrains();
+  public prevPage(): void {
+    if (this.trainInfo.metadata.page > 1) {
+      this._loadTrains(this.trainInfo.metadata.page - 1);
     }
   }
 
-  public isLastPage(): boolean {
-    return this.page * this.PAGE_SIZE >= this.total;
-  }
-
-  private _loadTrains() {
-    this.trainService
-      .getTrains(this.page, this.PAGE_SIZE)
+  private _loadTrains(page: number): void {
+    this._trainService
+      .getTrains(page, this._PAGE_SIZE)
       .subscribe((trainInfo) => {
         this.trainInfo = trainInfo;
-        this.total = trainInfo.total;
       });
   }
 }
