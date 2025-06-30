@@ -1,14 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TrainService } from '../../services/train.service';
 import { NgIf } from '@angular/common';
 import { Train } from '../../models/train.model';
-import Toastify from 'toastify-js';
+import {
+  NotificationService,
+  ToastType,
+} from '../../core/services/notification.service';
+import { BooleanToTextPipe } from '../../shared/pipes/boolean-to-text.pipe';
 
 @Component({
   selector: 'app-details',
-  imports: [ReactiveFormsModule, NgIf],
+  imports: [ReactiveFormsModule, NgIf, BooleanToTextPipe],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
 })
@@ -22,66 +26,75 @@ export class DetailsComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
-    private _trainService: TrainService
+    private _trainService: TrainService,
+    private _notificationService: NotificationService,
+    private _router: Router
   ) {}
 
   ngOnInit(): void {
     this._route.params.subscribe((params) => {
       const { id } = params;
 
-      Toastify({
-        text: 'This is a toast',
-        duration: 30000000,
-        className: 'text-sm',
-        style: {
-          'border-radius': 'var(--radius-xl)',
-          color: 'var(--color-gray-700)',
-          background: 'var(--color-white)',
-        },
-        close: true,
-      }).showToast();
-
       if (!id) {
-        console.error('No ID provided in route parameters');
+        this._notificationService.show(
+          'No ID provided in route parameters',
+          ToastType.Error
+        );
         return;
       }
 
       this._trainService.getTrain(+id).subscribe((train) => {
         if (!train) {
-          console.error(`Train with ID ${id} not found`);
+          this._notificationService.show(
+            `Train with ID ${id} not found`,
+            ToastType.Error
+          );
+          this._router.navigate(['/']);
           return;
         }
         this.train = train;
         this.quantity.setValue(train.quantity);
-
-        this.quantity.valueChanges.subscribe((value) => {
-          console.log(this.quantity.errors);
-        });
       });
     });
   }
 
-  public updateQuantity() {
+  public updateQuantity(): void {
     if (this.train && this.train.canAssignQuantity === false) {
-      console.warn('This train cannot have its quantity updated.');
+      this._notificationService.show(
+        'This train cannot have its quantity updated.',
+        ToastType.Warning
+      );
       return;
     }
 
     if (this.train && this.quantity.invalid) {
-      console.warn('Invalid quantity value:', this.quantity.errors);
+      this._notificationService.show(
+        `Invalid quantity value:, ${
+          this.quantity.errors
+            ? JSON.stringify(this.quantity.errors)
+            : 'unknown'
+        }`,
+        ToastType.Warning
+      );
       return;
     }
 
     if (this.train && this.quantity.value !== null) {
-      console.log('Updated quantity:', this.quantity.value);
       this._trainService
         .updateTrain({ ...this.train, quantity: this.quantity.value })
         .subscribe((updatedTrain) => {
           this.train = updatedTrain;
           this.quantity.setValue(updatedTrain.quantity);
+          this._notificationService.show(
+            `Train quantity updated to ${updatedTrain.quantity}`,
+            ToastType.Success
+          );
         });
     } else {
-      console.warn('Train is not defined or quantity is null');
+      this._notificationService.show(
+        'Train is not defined or quantity is null',
+        ToastType.Warning
+      );
     }
   }
 }

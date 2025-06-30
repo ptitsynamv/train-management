@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Train } from '../models/train.model';
-import { delay, Observable, of } from 'rxjs';
+import { catchError, delay, map, Observable, of, throwError } from 'rxjs';
 import { TrainInfo } from '../models/shared.model';
 
 @Injectable({
@@ -235,7 +235,7 @@ export class TrainService {
     return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
   }
 
-  private save(Trains: Train[]) {
+  private save(Trains: Train[]): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(Trains));
   }
 
@@ -253,7 +253,13 @@ export class TrainService {
       pageSize,
       page,
       hasNext,
-    }).pipe(delay(500));
+    }).pipe(
+      delay(500),
+      catchError((err) => {
+        console.error('Train API error:', err);
+        return throwError(() => new Error('Failed to load trains'));
+      })
+    );
   }
 
   public getTrain(id: number): Observable<Train | undefined> {

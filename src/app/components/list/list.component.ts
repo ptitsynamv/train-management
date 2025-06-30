@@ -29,7 +29,7 @@ export class ListComponent implements OnInit {
   }
 
   public totalPages(): number {
-    return Math.ceil(this.total / this.PAGE_SIZE);
+    return Math.ceil(this.total / this.PAGE_SIZE) || 1;
   }
 
   public nextPage() {

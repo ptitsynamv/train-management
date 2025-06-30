@@ -10,6 +10,12 @@
                   scope="col"
                   class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                 >
+                  ID
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                >
                   Name
                 </th>
                 <th
@@ -43,6 +49,11 @@
                 <td
                   class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
                 >
+                  {{ train.id }}
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                >
                   {{ train.name }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
@@ -61,16 +72,12 @@
                 <td
                   class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium"
                 >
-                  <ng-container
-                    *ngIf="train.canAssignQuantity; else emptyState"
+                  <a
+                    routerLink="/train/{{ train.id }}"
+                    class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 focus:outline-hidden focus:text-blue-800 disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    <a
-                      routerLink="/train/{{ train.id }}"
-                      class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 focus:outline-hidden focus:text-blue-800 disabled:opacity-50 disabled:pointer-events-none"
-                    >
-                      Edit Quantity
-                    </a>
-                  </ng-container>
+                    View Details
+                  </a>
                 </td>
               </tr>
             </tbody>
