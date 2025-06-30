@@ -1,4 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TrainService } from '../../services/train.service';
@@ -15,6 +20,7 @@ import { BooleanToTextPipe } from '../../shared/pipes/boolean-to-text.pipe';
   imports: [ReactiveFormsModule, NgIf, BooleanToTextPipe],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetailsComponent implements OnInit {
   public quantity = new FormControl(0, [
@@ -28,7 +34,8 @@ export class DetailsComponent implements OnInit {
     private _route: ActivatedRoute,
     private _trainService: TrainService,
     private _notificationService: NotificationService,
-    private _router: Router
+    private _router: Router,
+    private _ref: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -55,6 +62,7 @@ export class DetailsComponent implements OnInit {
         }
         this.train = train;
         this.quantity.setValue(train.quantity);
+        this._ref.detectChanges();
       });
     });
   }

@@ -1,4 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+} from '@angular/core';
 import { Train } from '../../models/train.model';
 import { TrainService } from '../../services/train.service';
 import { NgFor, NgIf } from '@angular/common';
@@ -11,6 +16,7 @@ import { RouterLink } from '@angular/router';
   imports: [NgFor, NgIf, BooleanToTextPipe, RouterLink],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListComponent implements OnInit {
   private readonly _PAGE_SIZE = 10;
@@ -24,7 +30,10 @@ export class ListComponent implements OnInit {
     },
   };
 
-  constructor(private _trainService: TrainService) {}
+  constructor(
+    private _trainService: TrainService,
+    private _ref: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this._loadTrains(this.trainInfo.metadata.page);
@@ -54,7 +63,10 @@ export class ListComponent implements OnInit {
     this._trainService
       .getTrains(page, this._PAGE_SIZE)
       .subscribe((trainInfo) => {
-        this.trainInfo = trainInfo;
+        if (trainInfo && trainInfo.data && trainInfo.metadata) {
+          this.trainInfo = trainInfo;
+          this._ref.detectChanges();
+        }
       });
   }
 }

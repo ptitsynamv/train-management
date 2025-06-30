@@ -2,6 +2,12 @@ import { Injectable } from '@angular/core';
 import { Train } from '../models/train.model';
 import { catchError, delay, map, Observable, of, throwError } from 'rxjs';
 import { TrainInfo } from '../models/shared.model';
+import {
+  NotificationService,
+  ToastType,
+} from '../core/services/notification.service';
+import { handleError } from '../core/handlers/rxjs-handle-error';
+import { ErrorService } from '../core/services/error.service';
 
 @Injectable({
   providedIn: 'root',
@@ -221,7 +227,7 @@ export class TrainService {
     },
   ];
 
-  constructor() {
+  constructor(private _errorService: ErrorService) {
     const existing = localStorage.getItem(this.STORAGE_KEY);
     if (!existing) {
       localStorage.setItem(
@@ -243,6 +249,8 @@ export class TrainService {
     page: number = 1,
     pageSize: number = 10
   ): Observable<TrainInfo> {
+    // throw new Error('Simulated error');
+
     const trains = this.getAllTrais();
     const start = (page - 1) * pageSize;
     const paginatedData = trains.slice(start, start + pageSize);
@@ -257,9 +265,9 @@ export class TrainService {
       },
     }).pipe(
       delay(500),
-      catchError((err) => {
-        console.error('Train API error:', err);
-        return throwError(() => new Error('Failed to load trains'));
+      handleError<TrainInfo>(this._errorService, 'Error fetching trains', {
+        data: [],
+        metadata: { total: 0, pageSize, page, hasNext: false },
       })
     );
   }
