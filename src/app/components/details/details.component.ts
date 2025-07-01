@@ -25,8 +25,9 @@ import { BooleanToTextPipe } from '../../shared/pipes/boolean-to-text.pipe';
 export class DetailsComponent implements OnInit {
   public quantity = new FormControl(0, [
     Validators.required,
+    Validators.min(0),
     Validators.max(Number.MAX_SAFE_INTEGER),
-    Validators.pattern('^(0|[1-9][0-9]*)$'),
+    Validators.pattern(/^[0-9]*$/), // Positive integer validation
   ]);
   public train: Train | null = null;
 
