@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Train } from '../models/train.model';
-import { catchError, delay, map, Observable, of, throwError } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 import { TrainInfo } from '../models/shared.model';
-import {
-  NotificationService,
-  ToastType,
-} from '../core/services/notification.service';
 import { handleError } from '../core/handlers/rxjs-handle-error';
 import { ErrorService } from '../core/services/error.service';
 
@@ -249,8 +245,6 @@ export class TrainService {
     page: number = 1,
     pageSize: number = 10
   ): Observable<TrainInfo> {
-    // throw new Error('Simulated error');
-
     const trains = this.getAllTrais();
     const start = (page - 1) * pageSize;
     const paginatedData = trains.slice(start, start + pageSize);

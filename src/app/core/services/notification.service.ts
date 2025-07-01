@@ -18,12 +18,8 @@ export interface ToastMessage {
 })
 export class NotificationService {
   public toasts = signal<ToastMessage[]>([]);
-  private readonly timeoutDuration = 5000; // 5 seconds
+  private readonly TIMER_DURATION = 5000; // 5 seconds
   private _nextId = 0;
-
-  constructor() {
-    console.log('NotificationService initialized');
-  }
 
   public show(message: string, type: ToastType = ToastType.Info): void {
     const toast: ToastMessage = {
@@ -40,9 +36,7 @@ export class NotificationService {
 
     this.toasts.update((toasts) => [...toasts, toast]);
 
-    console.log({ pp: this.toasts() });
-
-    setTimeout(() => this.hide(toast.id), this.timeoutDuration);
+    setTimeout(() => this.hide(toast.id), this.TIMER_DURATION);
   }
 
   public hide(id: number): void {
