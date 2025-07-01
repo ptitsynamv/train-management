@@ -13,5 +13,7 @@ export class GlobalErrorHandler implements ErrorHandler {
       `'Global error:' ${error.message || error}`,
       ToastType.Error
     );
+
+    // TODO: Log Sentry
   }
 }
