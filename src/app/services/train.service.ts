@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Train } from '../models/train.model';
-import { delay, Observable, of } from 'rxjs';
+import { delay, finalize, Observable, of } from 'rxjs';
 import { TrainInfo } from '../models/shared.model';
 import { handleError } from '../core/handlers/rxjs-handle-error';
 import { ErrorService } from '../core/services/error.service';
+import { LoaderService } from '../shared/services/loader.service';
 
 @Injectable({
   providedIn: 'root',
@@ -223,7 +224,10 @@ export class TrainService {
     },
   ];
 
-  constructor(private _errorService: ErrorService) {
+  constructor(
+    private _errorService: ErrorService,
+    private _loaderService: LoaderService
+  ) {
     const existing = localStorage.getItem(this.STORAGE_KEY);
     if (!existing) {
       localStorage.setItem(
@@ -233,23 +237,15 @@ export class TrainService {
     }
   }
 
-  private getAllTrais(): Train[] {
-    return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
-  }
-
-  private save(Trains: Train[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(Trains));
-  }
-
   public getTrains(
     page: number = 1,
     pageSize: number = 10
   ): Observable<TrainInfo> {
-    const trains = this.getAllTrais();
+    const trains = this._getAllTrais();
     const start = (page - 1) * pageSize;
     const paginatedData = trains.slice(start, start + pageSize);
     const hasNext = start + pageSize < trains.length;
-    return of({
+    const data = {
       data: paginatedData,
       metadata: {
         total: trains.length,
@@ -257,8 +253,9 @@ export class TrainService {
         page,
         hasNext,
       },
-    }).pipe(
-      delay(500),
+    };
+
+    return this._withLoader(data).pipe(
       handleError<TrainInfo>(this._errorService, 'Error fetching trains', {
         data: [],
         metadata: { total: 0, pageSize, page, hasNext: false },
@@ -266,16 +263,47 @@ export class TrainService {
     );
   }
 
-  public getTrain(id: number): Observable<Train | undefined> {
-    const train = this.getAllTrais().find((train) => train.id === id);
-    return of(train).pipe(delay(500));
+  public getTrain(id: number): Observable<{ train: Train | undefined }> {
+    const train = this._getAllTrais().find((train) => train.id === id);
+
+    return this._withLoader({ train }).pipe(
+      handleError<{ train: Train | undefined }>(
+        this._errorService,
+        'Error fetching train',
+        { train: undefined }
+      )
+    );
   }
 
-  public updateTrain(updatedTrain: Train): Observable<Train> {
-    const trains = this.getAllTrais().map((train) =>
+  public updateTrain(
+    updatedTrain: Train
+  ): Observable<{ train: Train | undefined }> {
+    const trains = this._getAllTrais().map((train) =>
       train.id === updatedTrain.id ? updatedTrain : train
     );
-    this.save(trains);
-    return of(updatedTrain).pipe(delay(500));
+    this._save(trains);
+    return this._withLoader({ train: updatedTrain }).pipe(
+      handleError<{ train: Train | undefined }>(
+        this._errorService,
+        'Error update train',
+        { train: undefined }
+      )
+    );
+  }
+
+  private _withLoader<T>(value: T, ms = 500): Observable<T> {
+    this._loaderService.show();
+    return of(value).pipe(
+      delay(ms),
+      finalize(() => this._loaderService.hide())
+    );
+  }
+
+  private _getAllTrais(): Train[] {
+    return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
+  }
+
+  private _save(Trains: Train[]): void {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(Trains));
   }
 }

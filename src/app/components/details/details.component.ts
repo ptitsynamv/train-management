@@ -51,7 +51,9 @@ export class DetailsComponent implements OnInit {
         return;
       }
 
-      this._trainService.getTrain(+id).subscribe((train) => {
+      this._trainService.getTrain(+id).subscribe((data) => {
+        const { train = null } = data || {};
+
         if (!train) {
           this._notificationService.show(
             `Train with ID "${id}" not found`,
@@ -100,11 +102,20 @@ export class DetailsComponent implements OnInit {
 
     this._trainService
       .updateTrain({ ...this.train, quantity: this.quantity.value })
-      .subscribe((updatedTrain) => {
-        this.train = updatedTrain;
-        this.quantity.setValue(updatedTrain.quantity);
+      .subscribe((data) => {
+        const { train = null } = data;
+        if (!train) {
+          this._notificationService.show(
+            'Failed to update train quantity',
+            ToastType.Error
+          );
+          return;
+        }
+
+        this.train = train;
+        this.quantity.setValue(train.quantity);
         this._notificationService.show(
-          `Train quantity updated to ${updatedTrain.quantity}`,
+          `Train quantity updated to ${train.quantity}`,
           ToastType.Success
         );
       });
